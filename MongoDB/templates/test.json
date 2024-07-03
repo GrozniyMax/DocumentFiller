@@ -1,0 +1,15 @@
+{
+  "filename": "test.docx",
+  "properties": [
+    {
+      "name": "main.test",
+      "label": "Name",
+      "required": true,
+      "validationRExString": "$.+'/^"
+    },
+    {
+      "name": "main.like"
+    }
+
+  ]
+}

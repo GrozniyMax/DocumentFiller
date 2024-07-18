@@ -1,4 +1,4 @@
-package com.maxim.documentfiller.DocumentFilling.JSONBuilding;
+package com.maxim.documentfiller.DocumentFilling;
 import com.maxim.documentfiller.DocumentFilling.Exceptions.IncorrectFilePropertiesException;
 import lombok.Setter;
 import org.apache.commons.math3.util.Pair;

@@ -1,6 +1,6 @@
 package com.maxim.documentfiller.DocumentFilling;
 
-import com.maxim.documentfiller.DB.templates.Properties.FileAttributes;
+import com.maxim.documentfiller.MongoDB.templates.Properties.FileAttributes;
 
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;

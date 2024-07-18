@@ -1,7 +1,8 @@
-package com.maxim.documentfiller.DocumentFilling;
+package com.maxim.documentfiller.MongoDB.templates;
 
-import com.google.common.base.Preconditions;
-import com.maxim.documentfiller.DocumentFilling.Exceptions.SuchFileExists;
+import com.maxim.documentfiller.MongoDB.Exceptions.NoSuchFileException;
+import com.maxim.documentfiller.MongoDB.Exceptions.SuchFileExistsExpection;
+import com.maxim.documentfiller.DocumentFilling.TemplateDataSource;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -12,23 +13,21 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.nio.file.NoSuchFileException;
+
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Service that encapsulates all interaction with GridFS of MongoDB
  * @author Taranenko Maxim
  */
 @Service
-public class GridFSAdapter {
+public class GridFSAdapter implements TemplateDataSource {
 
     @Autowired
     private GridFsTemplate fileStorage;
 
-    public InputStream getFile(@NonNull String filename) throws NoSuchFileException {
+    private InputStream getFile(@NonNull String filename) throws NoSuchFileException {
         try {
             var gridFSFile = Objects.requireNonNull(fileStorage.findOne(findByFilenameQuery(filename)));
             return Objects.requireNonNull(fileStorage.getResource(gridFSFile).getContent());
@@ -37,10 +36,10 @@ public class GridFSAdapter {
         }
     }
 
-    public void storeFile(@NonNull String filename, @NonNull InputStream content, @Nullable Map<String,Object> metadata) throws SuchFileExists {
+    public void storeFile(@NonNull String filename, @NonNull InputStream content, @Nullable Map<String,Object> metadata) throws SuchFileExistsExpection {
         try {
             getFile(filename);
-            throw new SuchFileExists("filename");
+            throw new SuchFileExistsExpection("filename");
         }catch (NoSuchFileException e){
             Document meta = null;
             if (metadata != null) {
@@ -67,4 +66,20 @@ public class GridFSAdapter {
     private Query findByFilenameQuery(@NonNull String filename){
         return new Query(Criteria.where("filename").is(filename));
     }
+
+    @Override
+    public InputStream loadFile(@lombok.NonNull String filename) throws NoSuchFileException {
+        return getFile(filename);
+    }
+
+    @Override
+    public void putFile(@lombok.NonNull String filename, @lombok.NonNull InputStream inputStream, Map<String, Object> metadata) {
+        storeWithReplacement(filename, inputStream,metadata);
+    }
+
+    @Override
+    public void addFile(@lombok.NonNull String filename, @lombok.NonNull InputStream inputStream, Map<String, Object> metadata) throws SuchFileExistsExpection {
+        storeFile(filename,inputStream,metadata);
+    }
+
 }

@@ -1,0 +1,49 @@
+services:
+  mongo:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./MongoDB
+    restart: "unless-stopped"
+    logging:
+      driver: none
+    env_file:
+      - secrets/mongoDB.env
+    ports:
+      - "27017:27017"
+    networks:
+      - common
+#    volumes:
+#      - db-data/MongoDB
+  postgres:
+    image: "postgres:latest"
+
+    env_file:
+      - secrets/postgress.env
+    ports:
+      - "5432:5432"
+    networks:
+      - common
+#    volumes:
+#      - db-data/PostgreSQL
+  app:
+    build:
+      dockerfile: ./Dockerfile
+    env_file:
+      - secrets/mongoDB.env
+      - secrets/postgress.env
+    environment:
+      PG_PORT: 5432
+      MONGO_PORT: 27017
+      PG_HOST: postgres
+      MONGO_HOST: mongo
+    depends_on:
+      - mongo
+      - postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - common
+networks:
+  common:
+    driver: bridge
+

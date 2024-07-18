@@ -15,14 +15,9 @@ import com.haulmont.yarg.structure.impl.BandBuilder;
 import com.haulmont.yarg.structure.impl.ReportBuilder;
 import com.haulmont.yarg.structure.impl.ReportTemplateBuilder;
 import com.haulmont.yarg.util.groovy.DefaultScriptingImpl;
+import com.maxim.documentfiller.DocumentFilling.Exceptions.IncorrectFilePropertiesException;
 import com.maxim.documentfiller.DocumentFilling.Exceptions.NotFilledDataException;
-import com.maxim.documentfiller.DocumentFilling.JSONBuilding.StringTree;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Singular;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -61,10 +56,14 @@ public class Document {
     @Builder
     public Document(String filename, String outputType, String outputName, String pathSeparator) {
         this.filename = filename;
-        this.outputType = outputType;
-        this.outputName = outputName;
+        this.outputName = outputName==null?filename:outputName;
+        this.outputType = outputType==null?getFileTypeFromName(outputName):outputType;
         this.pathSeparator = pathSeparator==null?"\\.+":pathSeparator;
         jsonTree.setPathSeparator(this.pathSeparator);
+    }
+
+    private String getFileTypeFromName(String fileName) {
+        return fileName.substring(fileName.lastIndexOf(".")+1);
     }
 
 
@@ -74,11 +73,19 @@ public class Document {
      * <b>Must be invoken</b>
      * @param data
      */
-    public void setData(Map<String, String> data){
-        isFilledWithData=true;
-        for (var entry: data.entrySet()){
-            jsonTree.put(entry.getKey().toLowerCase(),entry.getValue());
-            bandsName.add(entry.getKey().split(pathSeparator)[0].toLowerCase());
+    public void setData(Map<String, String> data) throws IncorrectFilePropertiesException {
+        try {
+            if (data==null || data.isEmpty()) {
+                return;
+            }
+            isFilledWithData=true;
+            for (var entry: data.entrySet()){
+                jsonTree.put(entry.getKey().toLowerCase(),entry.getValue());
+                bandsName.add(entry.getKey().split(pathSeparator)[0].toLowerCase());
+            }
+        } catch (IncorrectFilePropertiesException e) {
+            e.setFilename(filename);
+            throw e;
         }
     }
 

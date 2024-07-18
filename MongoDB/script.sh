@@ -1,7 +1,7 @@
 cd /creation
 
 echo 'db.createUser({ user:"'${MONGO_USERNAME}'", pwd:"'${MONGO_PASSWORD}'", roles:[{role:"readWrite",db:"'${MONGO_DB_NAME}'"}]});' > script.js
-echo 'db.createCollection("attributes");' >> script.js
+echo 'db.createCollection("'${MONGO_COLLECTION_NAME}'");' >> script.js
 
 mongosh -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase=admin --file=./script.js 2>log.txt
 

@@ -21,17 +21,39 @@ configurations {
 }
 
 repositories {
-    mavenCentral()
+    mavenCentral();
+    maven (
+        url ="https://repo.cuba-platform.com/content/groups/work/")
 }
 
 extra["snippetsDir"] = file("build/generated-snippets")
 
 dependencies {
+    // YARG dependencies
+    implementation("com.haulmont.yarg:yarg:2.2.14")
+    implementation("com.jayway.jsonpath:json-path:2.4.0")
+    implementation("javax.xml.bind:jaxb-api:2.3.0")
+    implementation("javax.activation:activation:1.1")
+    implementation("org.glassfish.jaxb:jaxb-runtime:2.3.2")
+
+    //PortgreSQL
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.postgresql:postgresql:42.7.3")
+
+
+    //MongoDB
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
+
+    //Starters
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    //Documentation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+
     compileOnly("org.projectlombok:lombok")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.projectlombok:lombok")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -49,3 +71,4 @@ tasks.asciidoctor {
     inputs.dir(project.extra["snippetsDir"]!!)
     dependsOn(tasks.test)
 }
+
